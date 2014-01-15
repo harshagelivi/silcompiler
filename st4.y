@@ -24,7 +24,7 @@
         char c;
         char * ch;
 }
-%token NUM PLUS PDT NL MINUS DIV ID STMT DELIM ASGN READ WRITE ENDIF IF THEN ELSE WHILE ENDWHILE DO BOOL VOID LT GT EQ SLIST
+%token NUM PLUS PDT NL MINUS DIV ID STMT DELIM ASGN READ WRITE ENDIF IF THEN ELSE WHILE ENDWHILE DO BOOL VOID LT GT EQ SLIST CTRUE CFALSE
 %nonassoc LT GT EQ
 %left PLUS MINUS
 %left PDT DIV
@@ -38,28 +38,29 @@ start: slist NL					{eval($$);return 0;}
 slist:	stmt				{$$=mnode(VOID, STMT, 0, NULL, NULL, $1, NULL, NULL);}
 	|	stmt slist				{$$=mnode(VOID, SLIST, 0, NULL, NULL, $1, $2, NULL);}
 	;
-stmt:	ID ASGN E DELIM		{
+stmt:	ID ASGN E DELIM		{yylineno++;
 							root=mnode(VOID, ID, 0, $1, NULL, NULL, NULL, NULL);
 							$$=mnode(VOID, ASGN, 0, NULL, NULL, root, $3, NULL);
 							}
-		| READ '(' ID ')' DELIM	{
+		| READ '(' ID ')' DELIM	{yylineno++;
 							root=mnode(VOID, ID, 0, $3, NULL, NULL, NULL, NULL);
 							$$=mnode(VOID, READ, 0, NULL, NULL, root, NULL, NULL);
 							}
-		| WRITE E DELIM	{$$=mnode(VOID, WRITE, 0, NULL, NULL, $2, NULL, NULL);}
-		| IF E THEN slist ELSE slist ENDIF DELIM	{$$=mnode(VOID, IF, 0, NULL, NULL, $2, $4, $6);}
-		| WHILE E DO slist ENDWHILE DELIM		{$$=mnode(VOID, WHILE, 0, NULL, NULL, $2, $4, NULL);}
+		| WRITE '(' E ')' DELIM	{yylineno++;$$=mnode(VOID, WRITE, 0, NULL, NULL, $3, NULL, NULL);}
+		| IF E THEN slist ELSE slist ENDIF DELIM	{yylineno++;$$=mnode(VOID, IF, 0, NULL, NULL, $2, $4, $6);}
+		| WHILE E DO slist ENDWHILE DELIM		{yylineno++;$$=mnode(VOID, WHILE, 0, NULL, NULL, $2, $4, NULL);}
+
 		;
 E: 		NUMB 			{$$=mnode(NUM, NUM, $1, NULL, NULL, NULL, NULL, NULL);}
-		| ID				{$$=mnode(VOID, ID, 0, yylval.ch, NULL, NULL, NULL, NULL);}
-		| E PLUS E 		{$$=mnode(VOID, PLUS, 0, NULL, NULL, $1, $3, NULL);}
-		| E MINUS E		{$$=mnode(VOID, MINUS, 0, NULL, NULL, $1, $3, NULL);}
-		| E PDT E			{$$=mnode(VOID, PDT, 0, NULL, NULL, $1, $3, NULL);}
-		| E DIV E			{$$=mnode(VOID, DIV, 0, NULL, NULL, $1, $3, NULL);}		
+		| ID				{$$=mnode(NUM, ID, 0, yylval.ch, NULL, NULL, NULL, NULL);}
+		| E PLUS E 		{$$=mnode(NUM, PLUS, 0, NULL, NULL, $1, $3, NULL);}
+		| E MINUS E		{$$=mnode(NUM, MINUS, 0, NULL, NULL, $1, $3, NULL);}
+		| E PDT E			{$$=mnode(NUM, PDT, 0, NULL, NULL, $1, $3, NULL);}
+		| E DIV E			{$$=mnode(NUM, DIV, 0, NULL, NULL, $1, $3, NULL);}		
 		| '(' E ')'			{$$=$2;}
-		| E LT E			{$$=mnode(VOID, LT, 0, NULL, NULL, $1, $3, NULL);}
-		| E GT E			{$$=mnode(VOID, GT, 0, NULL, NULL, $1, $3, NULL);}
-		| E EQ E			{$$=mnode(VOID, EQ, 0, NULL, NULL, $1, $3, NULL);}
+		| E LT E			{$$=mnode(BOOL, LT, 0, NULL, NULL, $1, $3, NULL);}
+		| E GT E			{$$=mnode(BOOL, GT, 0, NULL, NULL, $1, $3, NULL);}
+		| E EQ E			{$$=mnode(BOOL, EQ, 0, NULL, NULL, $1, $3, NULL);}
 		;
                 
 NUMB:        NUM                        {$$=yylval.n;}
@@ -74,6 +75,14 @@ int main(void){
         return 0;
 }
 struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node * arglist, struct node * ptr1, struct node *  ptr2, struct node *  ptr3){
+	if(NODETYPE==IF && ptr1->TYPE!=BOOL){
+		yyerror("bool expected for if");
+		return NULL;
+	}
+	if(NODETYPE==WHILE && ptr1->TYPE!=BOOL){
+		yyerror("bool expected for while");
+		return NULL;
+	}
 	struct node * t;
 	t=(struct node *)malloc(sizeof(struct node));
 	t->TYPE=TYPE;
@@ -110,27 +119,47 @@ void print(struct node * nd){
 	}
 }
 int eval(struct node * nd){
-
+if(nd!=NULL){
 	switch(nd->TYPE){
 		case(NUM):
-			return nd->VALUE;
-			break;
-		case(BOOL):
-			break;
-		case(VOID):
 			switch(nd->NODETYPE){
-				case(LT):
-					return eval(nd->ptr1)<eval(nd->ptr2)?1:0;
-					break;
-				case(GT):
-					return eval(nd->ptr1)>eval(nd->ptr2)?1:0;				
-					break;
-				case(EQ):
-					return eval(nd->ptr1)==eval(nd->ptr2)?1:0;					
+				case(NUM):
+					return nd->VALUE;
 					break;
 				case(DIV):
 					return eval(nd->ptr1)/eval(nd->ptr2);
 					break;
+				case(PDT):
+					return eval(nd->ptr1)*eval(nd->ptr2);					
+					break;
+				case(PLUS):
+					return eval(nd->ptr1)+eval(nd->ptr2);
+					break;
+				case(MINUS):
+					return eval(nd->ptr1)-eval(nd->ptr2);
+					break;
+				case(ID):
+					return var[*(nd->NAME)-'a'];
+					break;
+			}
+			break;
+			
+		case(BOOL):
+			switch(nd->NODETYPE){
+				
+				case(LT):
+					return eval(nd->ptr1)<eval(nd->ptr2)?CTRUE:CFALSE;
+					break;
+				case(GT):
+					return eval(nd->ptr1)>eval(nd->ptr2)?CTRUE:CFALSE;				
+					break;
+				case(EQ):
+					return eval(nd->ptr1)==eval(nd->ptr2)?CTRUE:CFALSE;					
+					break;
+			}		
+			break;
+		case(VOID):
+			switch(nd->NODETYPE){
 				case(STMT):
 					eval(nd->ptr1);
 					break;	
@@ -141,27 +170,15 @@ int eval(struct node * nd){
 				case(ASGN):
 					var[*(nd->ptr1->NAME)-'a']=eval(nd->ptr2);
 					break;									
-				case(PDT):
-					return eval(nd->ptr1)*eval(nd->ptr2);					
-					break;
-				case(PLUS):
-					return eval(nd->ptr1)+eval(nd->ptr2);
-					break;
-				case(MINUS):
-					return eval(nd->ptr1)-eval(nd->ptr2);
-					break;
 				case(IF):
-					if(eval(nd->ptr1))
+					if(eval(nd->ptr1)==CTRUE)
 						eval(nd->ptr2);
 					else
 						eval(nd->ptr3);	
 					break;
 				case(WHILE):
-					while(eval(nd->ptr1))
+					while(eval(nd->ptr1)==CTRUE)
 						eval(nd->ptr2);
-					break;
-				case(ID):
-					return var[*(nd->NAME)-'a'];
 					break;
 				case(READ):
 					scanf("%d",&var[*(nd->ptr1->NAME)-'a']);
@@ -173,3 +190,5 @@ int eval(struct node * nd){
 			break;		
 	}
 }
+}
+

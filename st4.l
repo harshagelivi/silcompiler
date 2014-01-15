@@ -19,6 +19,8 @@ asgn	"="
 rd		read
 wt		write
 cif		"if"
+ctrue	"true"
+cfalse	"false"
 then		"then"
 celse	"else"
 cendif	"endif"
@@ -28,6 +30,8 @@ cendw	"endwhile"
 %%
 {ws}			;
 {cwhile}			{return WHILE;}
+{ctrue}			{return CTRUE;}
+{cfalse}			{return CFALSE;}
 {cdo}			{return DO;}
 {cendw}			{return ENDWHILE;}
 {cif}				{return IF;}
