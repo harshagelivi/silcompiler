@@ -15,6 +15,7 @@ if(nd!=NULL){
 					return eval(nd->ptr1)*eval(nd->ptr2);					
 					break;
 				case(PLUS):
+					
 					return eval(nd->ptr1)+eval(nd->ptr2);
 					break;
 				case(MINUS):
@@ -23,8 +24,7 @@ if(nd!=NULL){
 				case(ID):
 					offset=0;
 					t=nd->ptr1;
-					if(t!=NULL)
-						offset=eval(t);
+					offset=eval(t);
 					return *(nd->Gentry->BINDING+offset);
 					break;
 			}
@@ -56,10 +56,9 @@ if(nd!=NULL){
 				case(ASGN):
 					offset=0;
 					t=nd->ptr1->ptr1;
-					if(t!=NULL)
-						offset=eval(t);
+					offset=eval(t);
 					*(nd->ptr1->Gentry->BINDING+offset)=eval(nd->ptr2);
-					break;									
+					break;
 				case(IF):
 					if(eval(nd->ptr1)==CTRUE)
 						eval(nd->ptr2);
@@ -73,8 +72,7 @@ if(nd!=NULL){
 				case(READ):
 					offset=0;
 					t=nd->ptr1->ptr1;
-					if(t!=NULL)
-						offset=eval(t);
+					offset=eval(t);
 					scanf("%d", (nd->ptr1->Gentry->BINDING+offset));
 					
 					break;

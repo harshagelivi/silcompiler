@@ -7,6 +7,9 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 		yyerror("bool expected for while");
 		return NULL;
 	}
+	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ )
+		if(ptr1==NULL || ptr2==NULL)
+			return NULL;
 	struct node * t;
 	t=(struct node *)malloc(sizeof(struct node));
 
@@ -16,9 +19,11 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 		if(gsy==NULL){
 			printf("undefined variable: %s\n",NAME);
 			return NULL;
-		}else{
-			t->Gentry=gsy;
 		}
+		if(ptr1==NULL){
+			return NULL;
+		}
+		t->Gentry=gsy;
 	}	
 	if(TYPE==VOID)
 		if(ptr1==NULL)

@@ -55,7 +55,7 @@ E: 		NUMB 			{$$=mnode(NUM, NUM, $1, NULL, NULL, NULL, NULL, NULL);}
 		| E GT E			{$$=mnode(BOOL, GT, 0, NULL, NULL, $1, $3, NULL);}
 		| E EQ E			{$$=mnode(BOOL, EQ, 0, NULL, NULL, $1, $3, NULL);}
 		;
-IDE:		ID				{$$=mnode(NUM, ID, 0, $1, NULL, NULL, NULL, NULL);}
+IDE:		ID				{$$=mnode(NUM, ID, 0, $1, NULL, zero_node, NULL, NULL);}
 		| ID '[' E ']'        	{$$=mnode(NUM, ID, 0, $1, NULL, $3, NULL, NULL);}
 NUMB:        NUM                        {$$=yylval.n;}
                 | MINUS NUMB        {$$=-$2;}
@@ -66,6 +66,7 @@ void yyerror(char *s) {
 }
 #include "code_gen.h"
 int main(void){
+	zero_node=mnode(NUM,NUM,0,NULL, NULL, NULL, NULL, NULL);
         yyparse();
         return 0;
 }

@@ -32,7 +32,7 @@ int get_reg();
 void dec_reg();
 int get_label();
 int code_gen(struct node * nd);
-
+struct node * zero_node;
 struct Gsymbol * head=NULL, * tail=NULL, * tail_id=NULL;
 struct Gsymbol * Glookup(char * NAME); // Look up for a global identifier
 struct Gsymbol * Ginstall(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST); // Installation
