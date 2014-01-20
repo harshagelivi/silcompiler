@@ -105,7 +105,7 @@ int code_gen(struct node * nd){
 					case(IF):
 						i=code_gen(nd->ptr1);
 						label=get_label();
-						printf("JNZ R%d, L%d\n",i,label);
+						printf("JZ R%d, L%d\n",i,label);
 						dec_reg();
 						code_gen(nd->ptr2);
 						label2=get_label();
@@ -119,7 +119,7 @@ int code_gen(struct node * nd){
 						label2=get_label();
 						printf("L%d:\n",label);
 						i=code_gen(nd->ptr1);
-						printf("JNZ R%d, L%d\n",i,label2);
+						printf("JZ R%d, L%d\n",i,label2);
 						dec_reg();
 						code_gen(nd->ptr2);
 						printf("JMP L%d\n",label);

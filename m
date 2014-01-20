@@ -14,7 +14,7 @@ else
 		if [ "$v" -ne "0" ]; then
 			echo "error in compiling"
 		else
-			echo "success!"
+			echo "//success!"
 			./$1
 		fi;
 	fi;

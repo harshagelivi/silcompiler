@@ -35,7 +35,7 @@
 %type <n> NUMB
 %type <ch> ID
 %%
-start: slist NL					{printf("START   %d\n",reg_count);code_gen($$);printf("HLT    %d\n",reg_count);return 0;}
+start: slist NL					{printf("START\n");code_gen($$);printf("HALT\n");return 0;}
 	;
 slist:	stmt				{$$=mnode(VOID, STMT, 0, NULL, NULL, $1, NULL, NULL);}
 	|	stmt slist				{$$=mnode(VOID, SLIST, 0, NULL, NULL, $1, $2, NULL);}
