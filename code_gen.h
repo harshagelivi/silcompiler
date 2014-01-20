@@ -12,8 +12,13 @@ int get_label(){
 void free_reg(){
 	reg_count=0;
 }
+int code_gen_aux(struct node * nd){
+	printf("START\n");
+	code_gen(nd);
+	printf("HALT\n");
+}
 int code_gen(struct node * nd){
-	int i,j,label,label2;
+	int i,j,label,label2,offset;
 	if(nd!=NULL){
 		switch(nd->TYPE){
 			case(NUM):
@@ -52,10 +57,11 @@ int code_gen(struct node * nd){
 						return i;
 						break;
 					case(ID):
-						i=get_reg();
-						j=*(nd->NAME)-'a';
-						printf("MOV R%d, [%d]\n",i,j);
-						return i;
+						offset=eval(nd->ptr1);
+						i=nd->Gentry->LOC+offset;
+						j=get_reg();
+						printf("MOV R%d, [%d]\n",j,i);
+						return j;
 						break;
 				}
 				break;
@@ -96,11 +102,11 @@ int code_gen(struct node * nd){
 						code_gen(nd->ptr2);
 						break;	
 					case(ASGN):
-						i=*(nd->ptr1->NAME)-'a';
+						offset=eval(nd->ptr1->ptr1);
+						i=nd->ptr1->Gentry->LOC+offset;
 						j=code_gen(nd->ptr2);
 						printf("MOV [%d], R%d\n",i,j);
 						dec_reg();
-						return i;
 						break;									
 					case(IF):
 						i=code_gen(nd->ptr1);
@@ -126,7 +132,8 @@ int code_gen(struct node * nd){
 						printf("L%d:\n",label2);
 						break;
 					case(READ):
-						i=*(nd->ptr1->NAME)-'a';
+						offset=eval(nd->ptr1->ptr1);
+						i=nd->ptr1->Gentry->LOC+offset;
 						j=get_reg();
 						printf("IN R%d\n",j);
 						printf("MOV [%d], R%d\n",i,j);

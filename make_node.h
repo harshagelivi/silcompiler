@@ -65,6 +65,9 @@ struct Gsymbol * Ginstall(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST
 	t->NAME=NAME;
 	t->SIZE=SIZE;
 	t->NEXT=NULL;
+	t->LOC=location;
+	location+=SIZE;
+	return t;
 }
 struct Gsymbol * put_type(struct Gsymbol * t,int type){
 	struct Gsymbol * x;
