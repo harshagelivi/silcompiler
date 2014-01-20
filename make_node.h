@@ -1,18 +1,26 @@
 struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node * arglist, struct node * ptr1, struct node *  ptr2, struct node *  ptr3){
+	/* to check whether E in if statemnt has a bool return type */
 	if(NODETYPE==IF && ptr1->TYPE!=BOOL){
 		yyerror("bool expected for if");
 		return NULL;
 	}
+	/* to check whether E in while statemnt has a bool return type */	
 	if(NODETYPE==WHILE && ptr1->TYPE!=BOOL){
 		yyerror("bool expected for while");
 		return NULL;
 	}
+	/* to check whether both the operands are present */	
 	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ )
 		if(ptr1==NULL || ptr2==NULL)
 			return NULL;
+	/* checks if assignment operands are of same type */		
+	if(NODETYPE==ASGN && (ptr1->TYPE != ptr2->TYPE) )
+		return NULL;
+	
 	struct node * t;
 	t=(struct node *)malloc(sizeof(struct node));
-
+	t->TYPE=TYPE;
+	/* to check whether ideantifier is declared.... */	
 	if(NODETYPE==ID){
 		struct Gsymbol * gsy;
 		gsy=Glookup(NAME);
@@ -23,15 +31,13 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 		if(ptr1==NULL){
 			return NULL;
 		}
+		t->TYPE=gsy->TYPE;
 		t->Gentry=gsy;
 	}	
+	/*  to ckeck for valid tree formation */
 	if(TYPE==VOID)
 		if(ptr1==NULL)
 			return NULL;	
-	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV )
-		if(ptr1==NULL || ptr2==NULL)
-			return NULL;
-	t->TYPE=TYPE;
 	t->NODETYPE=NODETYPE;
 	t->VALUE=VALUE;
 	if(NAME!=NULL){

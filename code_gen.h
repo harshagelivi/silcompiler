@@ -18,12 +18,12 @@ int code_gen_aux(struct node * nd){
 	printf("HALT\n");
 }
 int code_gen(struct node * nd){
-	int i,j,label,label2,offset;
+	int i,j,label,label2,offset,k;
 	if(nd!=NULL){
 		switch(nd->TYPE){
-			case(NUM):
+			case(INT):
 				switch(nd->NODETYPE){
-					case(NUM):
+					case(INT):
 						i=get_reg();
 						printf("MOV R%d, %d\n",i,nd->VALUE);
 						return i;
@@ -68,6 +68,26 @@ int code_gen(struct node * nd){
 			
 			case(BOOL):
 				switch(nd->NODETYPE){
+					case(ID):
+						offset=eval(nd->ptr1);
+						i=nd->Gentry->LOC+offset;
+						j=get_reg();
+						printf("MOV R%d, [%d]\n",j,i);
+						k=get_reg();
+						printf("MOV R%d, %d\n",k,CTRUE);
+						printf("EQ R%d, R%d\n",j,k);
+						dec_reg();
+						return j;
+						break;
+					case(BOOL):
+						i=get_reg();
+						printf("MOV R%d, %d\n",i,nd->VALUE);
+						k=get_reg();
+						printf("MOV R%d, %d\n",k,CTRUE);
+						printf("EQ R%d, R%d\n",i,k);
+						dec_reg();
+						return i;
+						break;
 				
 					case(LT):
 						i=code_gen(nd->ptr1);
@@ -105,7 +125,23 @@ int code_gen(struct node * nd){
 						offset=eval(nd->ptr1->ptr1);
 						i=nd->ptr1->Gentry->LOC+offset;
 						j=code_gen(nd->ptr2);
-						printf("MOV [%d], R%d\n",i,j);
+						if(nd->ptr1->TYPE==BOOL){
+							k=get_reg();
+							printf("MOV R%d, 1\n",k);
+							printf("EQ R%d, R%d\n",j,k);
+							label=get_label();
+							dec_reg();
+							printf("JZ R%d, L%d\n",j,label);
+							printf("MOV [%d], %d\n",i,CTRUE);
+							label2=get_label();
+							printf("JMP L%d\n",label2);
+							printf("L%d:\n",label);
+							printf("MOV [%d], %d\n",i,CFALSE);
+							printf("L%d:\n",label2);
+						
+						}else
+							printf("MOV [%d], R%d\n",i,j);
+						
 						dec_reg();
 						break;									
 					case(IF):

@@ -3,9 +3,9 @@ if(nd!=NULL){
 	int offset;
 	struct node * t;
 	switch(nd->TYPE){
-		case(NUM):
+		case(INT):
 			switch(nd->NODETYPE){
-				case(NUM):
+				case(INT):
 					return nd->VALUE;
 					break;
 				case(DIV):
@@ -22,9 +22,7 @@ if(nd!=NULL){
 					return eval(nd->ptr1)-eval(nd->ptr2);
 					break;
 				case(ID):
-					offset=0;
-					t=nd->ptr1;
-					offset=eval(t);
+					offset=eval(nd->ptr1);
 					return *(nd->Gentry->BINDING+offset);
 					break;
 			}
@@ -32,7 +30,13 @@ if(nd!=NULL){
 			
 		case(BOOL):
 			switch(nd->NODETYPE){
-				
+				case(ID):
+					offset=eval(nd->ptr1);
+					return *(nd->Gentry->BINDING+offset);
+					break;
+				case(BOOL):
+					return nd->VALUE;
+					break;				
 				case(LT):
 					return eval(nd->ptr1)<eval(nd->ptr2)?CTRUE:CFALSE;
 					break;
@@ -70,11 +74,9 @@ if(nd!=NULL){
 						eval(nd->ptr2);
 					break;
 				case(READ):
-					offset=0;
 					t=nd->ptr1->ptr1;
 					offset=eval(t);
-					scanf("%d", (nd->ptr1->Gentry->BINDING+offset));
-					
+					scanf("%d", (nd->ptr1->Gentry->BINDING+offset));		
 					break;
 				case(WRITE):
 					printf("value is %d\n",eval(nd->ptr1));
