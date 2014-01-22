@@ -110,6 +110,27 @@ int code_gen(struct node * nd){
 						dec_reg();
 						return i;
 						break;
+					case(LE):
+						i=code_gen(nd->ptr1);
+						j=code_gen(nd->ptr2);
+						printf("LE R%d, R%d\n",i,j);
+						dec_reg();
+						return i;
+						break;
+					case(GE):
+						i=code_gen(nd->ptr1);
+						j=code_gen(nd->ptr2);
+						printf("GE R%d, R%d\n",i,j);
+						dec_reg();
+						return i;
+						break;
+					case(NEQ):
+						i=code_gen(nd->ptr1);
+						j=code_gen(nd->ptr2);
+						printf("NE R%d, R%d\n",i,j);
+						dec_reg();
+						return i;
+						break;
 				}		
 				break;
 			case(VOID):

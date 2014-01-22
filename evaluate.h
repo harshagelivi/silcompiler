@@ -46,6 +46,15 @@ if(nd!=NULL){
 				case(EQ):
 					return eval(nd->ptr1)==eval(nd->ptr2)?CTRUE:CFALSE;					
 					break;
+				case(LE):
+					return eval(nd->ptr1)<=eval(nd->ptr2)?CTRUE:CFALSE;
+					break;
+				case(GE):
+					return eval(nd->ptr1)>=eval(nd->ptr2)?CTRUE:CFALSE;				
+					break;
+				case(NEQ):
+					return eval(nd->ptr1)!=eval(nd->ptr2)?CTRUE:CFALSE;					
+					break;
 			}		
 			break;
 		case(VOID):

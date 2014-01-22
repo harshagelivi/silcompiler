@@ -8,8 +8,8 @@
         char c;
         char * ch;
 }
-%token INT PLUS PDT NL MINUS DIV ID STMT DELIM ASGN READ WRITE ENDIF IF THEN ELSE WHILE ENDWHILE DO BOOL VOID LT GT EQ SLIST CTRUE CFALSE DECL ENDDECL COMMA PBEGIN PEND NUM ABOOL
-%nonassoc LT GT EQ
+%token INT PLUS PDT NL MINUS DIV ID STMT DELIM ASGN READ WRITE ENDIF IF THEN ELSE WHILE ENDWHILE DO BOOL VOID LT LE GT GE EQ NEQ SLIST CTRUE CFALSE DECL ENDDECL COMMA PBEGIN PEND NUM ABOOL
+%nonassoc LT GT EQ LE GE NEQ
 %left PLUS MINUS
 %left PDT DIV
 
@@ -55,6 +55,9 @@ E: 		NUMB 			{$$=mnode(INT, INT, $1, NULL, NULL, NULL, NULL, NULL);}
 		| E LT E			{$$=mnode(BOOL, LT, 0, NULL, NULL, $1, $3, NULL);}
 		| E GT E			{$$=mnode(BOOL, GT, 0, NULL, NULL, $1, $3, NULL);}
 		| E EQ E			{$$=mnode(BOOL, EQ, 0, NULL, NULL, $1, $3, NULL);}
+		| E LE E			{$$=mnode(BOOL, LE, 0, NULL, NULL, $1, $3, NULL);}
+		| E GE E			{$$=mnode(BOOL, GE, 0, NULL, NULL, $1, $3, NULL);}
+		| E NEQ E		{$$=mnode(BOOL, NEQ, 0, NULL, NULL, $1, $3, NULL);}
 		;
 IDE:		ID				{$$=mnode(VOID, ID, 0, $1, NULL, zero_node, NULL, NULL);}
 		| ID '[' E ']'        	{$$=mnode(VOID, ID, 0, $1, NULL, $3, NULL, NULL);}

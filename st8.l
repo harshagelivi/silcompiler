@@ -26,6 +26,9 @@ cwhile	"while"
 cdo		"do"
 cendw	"endwhile"
 %%
+"!="				return NEQ;
+"<="				return LE;
+">="				return GE;
 "["				return *yytext;
 "]"				return *yytext;
 "decl"			{return DECL;}
