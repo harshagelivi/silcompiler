@@ -25,14 +25,14 @@ declarations: DECL dlist ENDDECL {$$=$2;}
 dlist:	d_indiv dlist 			{;}
 		| d_indiv				{;}
 		;
-d_indiv: 	INT idlist DELIM		{$$=put_type($2,INT);add_tree($$);}
-		| BOOL idlist DELIM	{$$=put_type($2,BOOL);add_tree($$);}
+d_indiv: 	INT idlist DELIM		{$$=put_type($2,INT);Ginstall($$);}
+		| BOOL idlist DELIM	{$$=put_type($2,BOOL);Ginstall($$);}
 		;
 idlist:	indiv COMMA idlist		{$1->NEXT=$3;$$=$1;}
 		|indiv				{$$=$1;tail_id=$$;}
 		;
-indiv:	ID '[' E ']'				{$$=Ginstall($1, -1, eval($3), NULL);}
-		| ID					{$$=Ginstall($1, -1, 1, NULL );}
+indiv:	ID '[' E ']'				{$$=make_Gentry($1, -1, eval($3), NULL);}
+		| ID					{$$=make_Gentry($1, -1, 1, NULL );}
 		;
 slist:	stmt				{$$=mnode(VOID, STMT, 0, NULL, NULL, $1, NULL, NULL);}
 		|stmt slist			{$$=mnode(VOID, SLIST, 0, NULL, NULL, $1, $2, NULL);}

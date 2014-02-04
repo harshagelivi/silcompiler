@@ -20,6 +20,13 @@ struct node {
 	struct node *ptr1, *ptr2, *ptr3;
 	struct Gsymbol * Gentry;
 };
+
+struct arglist{
+	struct arglist * next;
+	int TYPE;
+	char * NAME;
+	int VALUE;
+};
 void yyerror(char *);
 struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node * arglist, struct node * ptr1, struct node *  ptr2, struct node *  ptr3);
 extern int yylineno;
@@ -36,7 +43,7 @@ int code_gen_aux(struct node * nd);
 struct node * zero_node;
 struct Gsymbol * head=NULL, * tail=NULL, * tail_id=NULL;
 struct Gsymbol * Glookup(char * NAME); // Look up for a global identifier
-struct Gsymbol * Ginstall(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST); // Installation
+struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST); // Installation
 struct Gsymbol * put_type(struct Gsymbol * t,int type);
-struct Gsymbol * add_tree(struct Gsymbol * t);
+struct Gsymbol * Ginstall(struct Gsymbol * t);
 void print_decl(struct Gsymbol * nd);

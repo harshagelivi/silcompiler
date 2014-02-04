@@ -1,18 +1,31 @@
 struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node * arglist, struct node * ptr1, struct node *  ptr2, struct node *  ptr3){
+	/*  checks for valid tree formation */
+	if(TYPE==VOID)
+		if(ptr1==NULL)
+			return NULL;	
 	/* to check whether E in if statemnt has a bool return type */
-	if(NODETYPE==IF && ptr1->TYPE!=BOOL){
-		yyerror("bool expected for if");
-		return NULL;
-	}
-	/* to check whether E in while statemnt has a bool return type */	
-	if(NODETYPE==WHILE && ptr1->TYPE!=BOOL){
-		yyerror("bool expected for while");
+	if((NODETYPE==IF || NODETYPE==WHILE)&& ptr1->TYPE!=BOOL){
+		yyerror("boolean expected but integer found");
 		return NULL;
 	}
 	/* to check whether both the operands are present */	
-	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ )
-		if(ptr1==NULL || ptr2==NULL)
+	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ || NODETYPE==NEQ || NODETYPE==LE || NODETYPE==GE)
+		if(ptr1==NULL || ptr2==NULL){
+			yyerror("one of the operands are ill formed");
 			return NULL;
+		}	
+	/* type check for OPERATORS */
+	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ || NODETYPE==NEQ || NODETYPE==LE || NODETYPE==GE)
+		if(ptr1->TYPE != ptr2->TYPE){
+			yyerror("Type check failed");
+			return NULL;
+		}	
+	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT ||   NODETYPE==LE || NODETYPE==GE)	
+		if(ptr1->TYPE!=INT || ptr2->TYPE!=INT){
+			yyerror("Integer expected!");
+			return NULL;
+		}
+		
 	/* checks if assignment operands are of same type */		
 	if(NODETYPE==ASGN && (ptr1->TYPE != ptr2->TYPE) )
 		return NULL;
@@ -35,9 +48,6 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 		t->Gentry=gsy;
 	}	
 	/*  to ckeck for valid tree formation */
-	if(TYPE==VOID)
-		if(ptr1==NULL)
-			return NULL;	
 	t->NODETYPE=NODETYPE;
 	t->VALUE=VALUE;
 	if(NAME!=NULL){
@@ -63,7 +73,7 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 	return t;
 }
 
-struct Gsymbol * Ginstall(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST){
+struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST){
 	struct Gsymbol * t;
 	t=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
 	t->BINDING=(int *)malloc(sizeof(int)*SIZE);
@@ -84,7 +94,7 @@ struct Gsymbol * put_type(struct Gsymbol * t,int type){
 	}
 	return x;
 }
-struct Gsymbol * add_tree(struct Gsymbol * t){
+struct Gsymbol * Ginstall(struct Gsymbol * t){
 	if(tail==NULL){
 		head=t;
 	}else{
