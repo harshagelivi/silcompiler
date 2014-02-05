@@ -28,8 +28,8 @@ dlist:	d_indiv dlist 			{;}
 d_indiv: 	INT idlist DELIM		{$$=put_type($2,INT);Ginstall($$);}
 		| BOOL idlist DELIM	{$$=put_type($2,BOOL);Ginstall($$);}
 		;
-idlist:	indiv COMMA idlist		{$1->NEXT=$3;$$=$1;}
-		|indiv				{$$=$1;tail_id=$$;}
+idlist:	indiv COMMA idlist		{check_if_exists($1->NAME,$3);$1->NEXT=$3;$$=$1;}
+		|indiv				{check_if_exists($1->NAME,NULL);$$=$1;tail_id=$$;}
 		;
 indiv:	ID '[' E ']'				{$$=make_Gentry($1, -1, eval($3), NULL);}
 		| ID					{$$=make_Gentry($1, -1, 1, NULL );}

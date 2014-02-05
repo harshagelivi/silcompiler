@@ -47,3 +47,4 @@ struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGL
 struct Gsymbol * put_type(struct Gsymbol * t,int type);
 struct Gsymbol * Ginstall(struct Gsymbol * t);
 void print_decl(struct Gsymbol * nd);
+void check_if_exists(char * NAME, struct Gsymbol * head);

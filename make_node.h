@@ -109,3 +109,28 @@ struct Gsymbol * Glookup(char * name){
 		t=t->NEXT;
 	return t;	
 }
+
+
+
+void check_if_exists(char * NAME, struct Gsymbol * head){
+	if(head==NULL){
+		if(Glookup(NAME)!=NULL){
+			printf("variable redeclared - %s\n",NAME);
+			exit(1);
+		}
+	}
+	else{
+		if(Glookup(NAME)!=NULL){
+			printf("variable redeclared - %s\n",NAME);
+			exit(1);
+		}
+		while(head!=NULL){
+			if(!strcmp(head->NAME,NAME)){
+				printf("variable redeclared - %s\n",NAME);
+				exit(1);
+			}
+			head=head->NEXT;
+		}
+	}
+}
+
