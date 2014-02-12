@@ -8,6 +8,7 @@ struct Gsymbol {
 	int * BINDING; // Address of the Identifier in Memory
 	int LOC;
 	/***Argstruct must store the name and type of each argument ***/
+	struct arglist * arglist;
 	struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
 };
 
@@ -20,9 +21,9 @@ struct node {
 	struct node *ptr1, *ptr2, *ptr3;
 	struct Gsymbol * Gentry;
 };
-
+int fun_par_type;
 struct arglist{
-	struct arglist * next;
+	struct arglist * NEXT,* TAIL;
 	int TYPE;
 	char * NAME;
 	int VALUE;
@@ -43,8 +44,15 @@ int code_gen_aux(struct node * nd);
 struct node * zero_node;
 struct Gsymbol * head=NULL, * tail=NULL, * tail_id=NULL;
 struct Gsymbol * Glookup(char * NAME); // Look up for a global identifier
-struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST); // Installation
+struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct arglist * ARGLIST); // Installation
 struct Gsymbol * put_type(struct Gsymbol * t,int type);
 struct Gsymbol * Ginstall(struct Gsymbol * t);
 void print_decl(struct Gsymbol * nd);
 void check_if_exists(char * NAME, struct Gsymbol * head);
+struct arglist * make_argentry(char * name,int type);
+struct arglist * fun_put_type(struct arglist * x, int type);
+struct arglist * fun_tail;
+int i;
+void fun_check_if_exists(char * NAME);
+struct arglist * fun_par_head=NULL;
+struct arglist * fun_par_tail;

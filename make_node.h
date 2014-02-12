@@ -73,7 +73,7 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 	return t;
 }
 
-struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGLIST){
+struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct arglist * ARGLIST){
 	struct Gsymbol * t;
 	t=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
 	t->BINDING=(int *)malloc(sizeof(int)*SIZE);
@@ -83,6 +83,7 @@ struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct Gsymbol * ARGL
 	t->NEXT=NULL;
 	t->LOC=location;
 	location+=SIZE;
+	t->arglist=ARGLIST;
 	return t;
 }
 struct Gsymbol * put_type(struct Gsymbol * t,int type){
@@ -134,3 +135,38 @@ void check_if_exists(char * NAME, struct Gsymbol * head){
 	}
 }
 
+void fun_check_if_exists(char * NAME){
+	struct arglist * head=fun_par_head;
+	while(head!=NULL){
+		if(!strcmp(head->NAME,NAME)){
+			printf("repeated argument - %s\n",NAME);
+			exit(1);
+		}
+		head=head->NEXT;
+	}
+}
+
+
+struct arglist * make_argentry(char * name,int type){
+	fun_check_if_exists(name);
+	struct arglist * t;
+	t=(struct arglist * )malloc(sizeof(struct arglist));
+	t->NAME=name;
+	t->TYPE=type;
+	t->NEXT = NULL;
+	if(fun_par_head==NULL)
+		fun_par_head=t;
+	else
+		fun_par_tail->NEXT=t;
+	fun_par_tail=t;		
+	return t;
+}
+
+struct arglist * fun_put_type(struct arglist * x, int type){
+	struct arglist *t=x;
+	while(x!=NULL){
+		x->TYPE=type;
+		x=x->NEXT;
+	}
+	return t;
+}
