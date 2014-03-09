@@ -1,0 +1,30 @@
+decl
+	integer fib(integer x);
+enddecl
+
+integer fib(integer x){
+	decl
+		integer j,l,m;
+	enddecl
+	begin
+		if(x==1)  then 
+			return 1;
+		else
+			if(x==0) then
+				return 0;
+			else
+				return fib(x-1)+fib(x-2);
+			endif;
+		endif;
+	end
+}
+
+integer main(){
+	decl
+		integer t,y,u,z;
+		boolean b1,b2;
+	enddecl
+	begin
+		write(fib(8));
+	end
+}

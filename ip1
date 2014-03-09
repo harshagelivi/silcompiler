@@ -1,0 +1,29 @@
+decl
+	integer q,k,func1(integer x,y;boolean a,sd);
+	boolean a,b,c(boolean l,k);
+	integer func,z,p,u;
+enddecl
+integer func1(integer x,y;boolean a,sd){
+	decl
+		integer j,l,m;
+	enddecl
+	begin
+		l=2;	
+		u=2;
+		write(87);
+	end
+
+}
+
+
+
+integer main(){
+	decl
+		integer t,y,u;
+	enddecl
+	begin
+		z=3;
+		w=9;
+		write(5);
+	end
+}

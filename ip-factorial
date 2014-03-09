@@ -1,0 +1,28 @@
+decl
+	integer func1(integer x);
+enddecl
+
+integer func1(integer x){
+	decl
+		integer j,l,m;
+	enddecl
+	begin
+		if(x==1)then
+			return x;
+		else
+			return x*func1(x-1);	
+		endif;	
+	end
+}
+
+integer main(){
+	decl
+		integer t,y,u,z;
+		boolean b1,b2;
+	enddecl
+	begin
+		z=func1(3);
+		u=func1(z);
+		write(u);
+	end
+}
