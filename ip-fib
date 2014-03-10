@@ -25,6 +25,7 @@ integer main(){
 		boolean b1,b2;
 	enddecl
 	begin
-		write(fib(8));
+		read(u);
+		write(fib(u));
 	end
 }

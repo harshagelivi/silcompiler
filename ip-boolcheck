@@ -1,0 +1,36 @@
+decl
+	boolean x[20], func(integer &x; boolean &y) ;
+enddecl
+
+boolean func(integer &x;boolean &y){
+	decl
+		integer t;
+	enddecl
+	begin
+		read(x);
+		write(x);
+		y=FALSE;
+		return TRUE;
+	end
+}
+integer main(){
+	decl 
+		boolean p,r;
+		integer q;
+	enddecl
+	begin
+		p=TRUE;
+		r=TRUE;
+		q=4;
+		if(NOT(func(&q, &p)) AND  func(&q, &r)) then
+			write(444);
+		else
+			write(555);
+		endif;
+		if(NOT(p)) then
+			write(1);
+		else
+			write(0);
+		endif;
+	end
+}

@@ -47,6 +47,7 @@ int get_decls_size(char * func_name){
 	return count;
 }
 void callee_entry_gen(char * func_name){
+	/*  SAVES OLD BP AND ALLOCATES SPACE FOR LOCAL VARIABLES */
 	int size=get_decls_size(func_name),i,j;
 	printf("PUSH BP   //callee on entry--strt\n");
 	printf("MOV BP, SP\n");
@@ -55,24 +56,42 @@ void callee_entry_gen(char * func_name){
 	j=get_reg();
 	printf("MOV R%d, SP\n", j);
 	printf("ADD R%d, R%d\n",i,j);
-	printf("MOV SP, R%d  //callee on entry--stop\n\n", i);
+	printf("MOV SP, R%d  //callee on entry--stop(setting space for local variables for %s)\n\n", i, func_name);
 	dec_reg();
 	dec_reg();
 }
 void callee_exit_gen(struct node * return_node){	
+	/* PUTS THE RETURN VALUE IN APPROPRIATE PLACE(FOR BOOL CTRUE/CFALSE IS KEPT)  AND SP IS SET TO POINT TO RETURN ADDRESS*/
 	int i;
 	int return_val_register=code_gen(return_node);
 	i=get_reg();
 	printf("MOV R%d, BP   //callee on exit--strt\n",i);
 	printf("DCR R%d\n", i);
-	printf("DCR R%d\n", i);	
+	printf("DCR R%d\n", i);	//return value always goes to assign
+	/*					//so 1 or 0 has to be returned, assign code takes 1 or 0 for bool assignments
+	if(return_node->TYPE==BOOL){
+		int k, label, label2;
+		k=get_reg();
+		printf("MOV R%d, 1\n",k);
+		printf("EQ R%d, R%d\n", return_val_register, k);
+		label=get_label();
+		dec_reg();
+		printf("JZ R%d, L%d\n", return_val_register, label);
+		printf("MOV R%d, %d\n", return_val_register, CTRUE);
+		label2=get_label();
+		printf("JMP L%d\n",label2);
+		printf("L%d:\n",label);
+		printf("MOV R%d, %d\n", return_val_register, CFALSE);
+		printf("L%d:\n",label2);						
+	}
+	*/
 	printf("MOV [R%d], R%d\n", i, return_val_register);
 	dec_reg();
 	dec_reg();
 	i=get_reg();
 	printf("MOV R%d, BP\n",i);
 	printf("DCR R%d \n", i);
-	printf("MOV SP, R%d\n", i);
+	printf("MOV SP, R%d\n", i);	//SP is made equal to BP-1 for returning
 	dec_reg();
 	//printf("MOV BP, [BP]\n");
 	free_reg();
@@ -126,18 +145,18 @@ int code_gen(struct node * nd){
 		printf("MOV BP, [BP]  //caller on entry--stop\n\n");
 		return i;
 	}
-	if(nd->NODETYPE==REFR){
+	if(nd->NODETYPE==REFR){		//only during function calls.. wen &id is found in grammar
 		int offset=code_gen(nd->ptr1->ptr1);
 		i=nd->ptr1->Gentry->LOC;
 		j=get_reg();
-		printf("MOV R%d, %d\n",j,i);
+		printf("MOV R%d, %d           //REFR strt\n",j,i);
 		printf("ADD R%d, R%d\n", offset, j);
 		k=get_reg();
 		if(nd->ptr1->Gentry->scope_flag=='g')
-			printf("MOV R%d, 0\n",k);
+			printf("MOV R%d, -1\n",k);
 		else
 			printf("MOV R%d, BP\n",k);
-		printf("ADD R%d, R%d\n", offset, k);
+		printf("ADD R%d, R%d         //REFR stop\n", offset, k);
 		dec_reg();
 		dec_reg();
 		return offset;
@@ -193,11 +212,11 @@ int code_gen(struct node * nd){
 						if(nd->Gentry!=NULL){
 							i=nd->Gentry->LOC;
 							if(nd->Gentry->scope_flag=='g')
-								printf("MOV R%d, 0\n", m);
+								printf("MOV R%d, -1\n", m);
 							else
 								printf("MOV R%d, BP\n", m);							
 						}else{
-							i=nd->Argentry->LOC;	
+							i=nd->Argentry->LOC;	//starts from -3 for each argument
 							printf("MOV R%d, BP\n", m);
 						}
 						printf("MOV R%d, %d\n",j,i);
@@ -224,7 +243,7 @@ int code_gen(struct node * nd){
 						if(nd->Gentry!=NULL){
 							i=nd->Gentry->LOC;
 							if(nd->Gentry->scope_flag=='g')
-								printf("MOV R%d, 0\n", m);
+								printf("MOV R%d, -1\n", m);
 							else
 								printf("MOV R%d, BP\n", m);							
 						}else{
@@ -347,7 +366,7 @@ int code_gen(struct node * nd){
 						if(nd->ptr1->Gentry!=NULL){
 							i=nd->ptr1->Gentry->LOC;
 							if(nd->ptr1->Gentry->scope_flag=='g')
-								printf("MOV R%d, 0\n", m);
+								printf("MOV R%d, -1\n", m);
 							else
 								printf("MOV R%d, BP\n", m);							
 						}else{
@@ -360,6 +379,9 @@ int code_gen(struct node * nd){
 						dec_reg();
 						dec_reg();
 						j=code_gen(nd->ptr2);
+						if(nd->ptr1->Argentry!=NULL)
+							if(nd->ptr1->Argentry->reference_flag==1)
+								printf("MOV R%d, [R%d]\n",offset,offset);
 						if(nd->ptr1->TYPE==BOOL){
 							k=get_reg();
 							printf("MOV R%d, 1\n",k);
@@ -374,9 +396,6 @@ int code_gen(struct node * nd){
 							printf("MOV [R%d], %d\n", offset, CFALSE);
 							printf("L%d:\n",label2);						
 						}else{
-							if(nd->ptr1->Argentry!=NULL)
-								if(nd->ptr1->Argentry->reference_flag==1)
-									printf("MOV R%d, [R%d]\n",offset,offset);
 							printf("MOV [R%d], R%d\n",offset,j);
 						}	
 						dec_reg();
@@ -385,7 +404,7 @@ int code_gen(struct node * nd){
 					case(IF):
 						i=code_gen(nd->ptr1);
 						label=get_label();
-						printf("JZ R%d, L%d\n",i,label);
+						printf("JZ R%d, L%d        //for if\n",i,label);
 						dec_reg();
 						code_gen(nd->ptr2);
 						label2=get_label();
@@ -400,25 +419,41 @@ int code_gen(struct node * nd){
 						label2=get_label();
 						printf("L%d:\n",label);
 						i=code_gen(nd->ptr1);
-						printf("JZ R%d, L%d\n",i,label2);
+						printf("JZ R%d, L%d           //for while\n",i,label2);
 						dec_reg();
 						code_gen(nd->ptr2);
 						printf("JMP L%d\n",label);
 						printf("L%d:\n",label2);
 						printf("\n");						
 						break;
-					case(READ):
+					case(READ):				
 						offset=code_gen(nd->ptr1->ptr1);
 						j=get_reg();
-
-						i=nd->ptr1->Gentry->LOC;
+						m=get_reg();
+						if(nd->ptr1->Gentry!=NULL){
+							i=nd->ptr1->Gentry->LOC;
+							if(nd->ptr1->Gentry->scope_flag=='g')
+								printf("MOV R%d, -1\n", m);
+							else
+								printf("MOV R%d, BP\n", m);							
+						}else{
+							i=nd->ptr1->Argentry->LOC;	
+							printf("MOV R%d, BP\n", m);
+						}
 						printf("MOV R%d, %d\n",j,i);
 						printf("ADD R%d, R%d\n",offset,j);
-						printf("IN R%d\n",j);						
+						printf("ADD R%d, R%d     // address for assgn\n", offset, m);
+						dec_reg();
+						dec_reg();
+						j=get_reg();
+						printf("IN R%d\n", j);
+						if(nd->ptr1->Argentry!=NULL)
+							if(nd->ptr1->Argentry->reference_flag==1)
+								printf("MOV R%d, [R%d]\n",offset,offset);
 						printf("MOV [R%d], R%d\n",offset,j);
 						dec_reg();
 						dec_reg();
-						break;								
+						break;									
 					case(WRITE):
 						j=code_gen(nd->ptr1);
 						printf("OUT R%d\n",j);
@@ -432,25 +467,42 @@ int code_gen(struct node * nd){
 }
 void push_args(struct node * t){
 	if(t!=NULL){
-		push_args(t->arglist);
+		push_args(t->next_arg);
 	}else
 		return;
 	//printf("chk %s in %d--%d   %d    %d\n",t->NAME, t->Gentry->LOC, t->TYPE, t->NODETYPE, t->VALUE);
 	int i=code_gen(t);
+	if(t->TYPE==BOOL){
+		if(t->NODETYPE!=REFR){
+			int k, label, label2;
+			k=get_reg();
+			printf("MOV R%d, 1\n",k);
+			printf("EQ R%d, R%d\n", i, k);
+			label=get_label();
+			dec_reg();
+			printf("JZ R%d, L%d\n", i, label);
+			printf("MOV R%d, %d\n", i, CTRUE);
+			label2=get_label();
+			printf("JMP L%d\n",label2);
+			printf("L%d:\n",label);
+			printf("MOV R%d, %d\n", i, CFALSE);
+			printf("L%d:\n",label2);
+		}
+	}
 	printf("   PUSH R%d\n\n",i);
 	dec_reg();
 }
-void pop_args(struct node * a ){
+void pop_args(struct node * a ){ 	//this function calculates the number of arguments and sets the SP so that it points to first 								//register to be popped on the stack(R0)
 	int count=1;
 	while(a!=NULL){
 		count++;
-		a=a->arglist;
+		a=a->next_arg;
 	}
 	int t=get_reg(), u=get_reg();
-	printf("MOV R%d, SP\n", t);
+	printf("\nMOV R%d, SP    //code to set SP\n", t);
 	printf("MOV R%d, %d\n", u, count);
 	printf("SUB R%d, R%d\n", t, u);
-	printf("MOV SP, R%d\n", t);
+	printf("MOV SP, R%d       //SP now points to R0\n", t);	
 	dec_reg();
 	dec_reg();
 }

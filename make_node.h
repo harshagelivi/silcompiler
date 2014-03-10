@@ -40,7 +40,7 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 						if(func_arg->TYPE == passed_arg->ptr1->TYPE){
 							passed_arg->TYPE=func_arg->TYPE;
 							func_arg=func_arg->NEXT;
-							passed_arg=passed_arg->arglist;					
+							passed_arg=passed_arg->next_arg;					
 						}
 					}else{
 						break;
@@ -48,7 +48,7 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 				}else{
 					if(func_arg->TYPE == passed_arg->TYPE){
 						func_arg=func_arg->NEXT;
-						passed_arg=passed_arg->arglist;
+						passed_arg=passed_arg->next_arg;
 					}
 				}	
 			}
@@ -156,6 +156,7 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 		t->NAME=(char *)malloc(sizeof(char)*50);
 		t->NAME=NAME;
 	}
+	t->next_arg=NULL;
 	if(arglist!=NULL){
 		t->arglist=(struct node *)malloc(sizeof(struct node));
 		t->arglist=arglist;
@@ -355,7 +356,7 @@ void append_to_rargs(struct node * t){
 		rargs_tail=t;
 	}
 	else{
-		rargs_tail->arglist=t;
+		rargs_tail->next_arg=t;
 		rargs_tail=t;		
 		
 	}

@@ -21,8 +21,7 @@ integer main(){
 		boolean b1,b2;
 	enddecl
 	begin
-		z=func1(3);
-		u=func1(z);
-		write(u);
+		read(u);
+		write(func1(u));
 	end
 }

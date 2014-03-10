@@ -19,8 +19,8 @@ integer main(){
 		integer p,q,z;
 	enddecl
 	begin
-		p=2;
-		q=3;
+		read(p);
+		read(q);
 		z=swap(&p, &q);
 		write(p);
 		write(q);

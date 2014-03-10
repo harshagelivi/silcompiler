@@ -32,11 +32,11 @@ main:	MAIN						{func_name="main";}
 fdeflist:  								{;}
 		| fdeflist fdef_ind 				{;}
 		;
-fdef_ind: var_par_type xxx_fun_name '(' aux_fun_dlist ')' '{' fdeclarations body '}'	{fun_type_check(func_name, $1, $4);func_code_gen(func_name, $8);}
+fdef_ind: var_par_type function_name '(' aux_fun_dlist ')' '{' fdeclarations body '}'	{fun_type_check(func_name, $1, $4);func_code_gen(func_name, $8);}
 		;
 fdeclarations: declarations	{put_func_decls(func_name,$1);}
 		;
-xxx_fun_name: ID			{func_name=$1;}	
+function_name: ID			{func_name=$1;}	
 		;	
 body:	PBEGIN slist PEND			{$$=$2;}
 		;		
@@ -102,14 +102,14 @@ E: 		NUMB 			{$$=mnode(INT, INT, $1, NULL, NULL, NULL, NULL, NULL);}
 		| E LE E			{$$=mnode(BOOL, LE, 0, NULL, NULL, $1, $3, NULL);}
 		| E GE E			{$$=mnode(BOOL, GE, 0, NULL, NULL, $1, $3, NULL);}
 		| E NEQ E		{$$=mnode(BOOL, NEQ, 0, NULL, NULL, $1, $3, NULL);}
-		| ID '(' farg_list ')' 	{$$=mnode(VOID, FUNC, 0, $1, rargs_head, NULL, NULL, NULL); set_rargs_head();}
+		| ID '(' farg_list ')' 	{$$=mnode(VOID, FUNC, 0, $1, $3, NULL, NULL, NULL);}
 		| ID '('  ')'	 		{$$=mnode(VOID, FUNC, 0, $1, NULL , NULL, NULL, NULL);}
 		;
-farg_list:	arg_exp						
-		| farg_list COMMA arg_exp		 				
+farg_list:	arg_exp					{$$=$1;}		
+		| farg_list COMMA arg_exp	{$1->next_arg=$3;$$=$1;}		 				
 		;
-arg_exp:	E				{append_to_rargs($1);}
-		| AMPD IDE		{$$=mnode(VOID, REFR, 0, $2->NAME, NULL, $2, NULL, NULL);append_to_rargs($$);}
+arg_exp:	E				{$$=$1;}
+		| AMPD IDE		{$$=mnode(VOID, REFR, 0, $2->NAME, NULL, $2, NULL, NULL);}
 		;
 IDE:		ID				{$$=mnode(VOID, ID, 0, $1, NULL, zero_node, NULL, NULL);}
 		| ID '[' E ']'        	{$$=mnode(VOID, ID, 0, $1, NULL, $3, NULL, NULL);}

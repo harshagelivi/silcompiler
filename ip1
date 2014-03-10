@@ -1,29 +1,46 @@
 decl
-	integer q,k,func1(integer x,y;boolean a,sd);
-	boolean a,b,c(boolean l,k);
-	integer func,z,p,u;
+	integer a[10],n,sort(integer size),z;
 enddecl
-integer func1(integer x,y;boolean a,sd){
+
+
+integer sort(integer size){
 	decl
-		integer j,l,m;
+		integer i,j,k,t;
 	enddecl
 	begin
-		l=2;	
-		u=2;
-		write(87);
+		i=0;
+		while(i<n) do
+			j=0;
+			while(j<(n-1)) do
+				if(a[j+1]>a[j]) then
+					t=a[j+1];
+					a[j+1]=a[j];
+					a[j]=t;
+				else
+					k=2;
+				endif;
+				j=j+1;
+			endwhile;
+			i=i+1;
+		endwhile;
 	end
-
 }
-
-
 
 integer main(){
 	decl
-		integer t,y,u;
+		integer i;
 	enddecl
 	begin
-		z=3;
-		w=9;
-		write(5);
+		read(n);
+		z=0;
+		while(z<n) do 
+			read(a[z]);
+			z=z+1;
+		endwhile;
+		i=0;
+		while(i<n) do 
+			write(a[i]);
+			i=i+1;
+		endwhile;
 	end
 }

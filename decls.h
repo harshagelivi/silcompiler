@@ -21,6 +21,7 @@ struct node {
 	char* NAME; /* for functions/identifiers */
 	int VALUE; /* for constants */
 	struct node *arglist;
+	struct node * next_arg;
 	struct node *ptr1, *ptr2, *ptr3;
 	struct Gsymbol * Gentry;
 	struct arglist * Argentry;

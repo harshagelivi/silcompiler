@@ -1,18 +1,15 @@
 decl
-	integer swap(integer &x, &y);
+	integer func1(integer x);
 enddecl
-integer swap(integer &x, &y){
+
+integer func1(integer x){
 	decl
-		integer q,t;
+		integer j,l,m;
 	enddecl
 	begin
-		q = x;
-		x = y;
-		y = q; 
-		return 1;
+		return 5;
 	end
 }
-
 
 integer main(){
 	decl
@@ -20,7 +17,7 @@ integer main(){
 		boolean b1,b2;
 	enddecl
 	begin
-		z=swap(&t,&y);
-		write(u);
+		z=func1(3);
+		write(z);
 	end
 }
