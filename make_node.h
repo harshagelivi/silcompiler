@@ -6,7 +6,14 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 			exit(1);
 		}
 	}
-	
+	/* check for boolean read and write */
+	if(NODETYPE==READ || NODETYPE==WRITE){
+		if(ptr1->TYPE!=INT){
+			printf("Integer identifiers are expected for read and write\n");
+			exit(1);
+		}	
+	}
+	/* type check for AND n OR */
 	if(NODETYPE==AND || NODETYPE==OR){
 		if(ptr1->TYPE != BOOL || ptr2->TYPE != BOOL){
 			yyerror("boolean operands expected for logical operator");

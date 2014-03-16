@@ -1,8 +1,8 @@
 decl
-	integer func1(integer x);
+	integer func1();
 enddecl
 
-integer func1(integer x){
+integer func1(){
 	decl
 		integer j,l,m;
 	enddecl
@@ -17,7 +17,7 @@ integer main(){
 		boolean b1,b2;
 	enddecl
 	begin
-		z=func1(3);
-		write(z);
+		t=func1();
+		write(t);
 	end
 }

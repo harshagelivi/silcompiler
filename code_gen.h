@@ -107,61 +107,60 @@ void func_code_gen(char * func_name, struct node * func_body){
 }
 int code_gen(struct node * nd){
 	int i,j,label,label2,offset,k,m,prev;
-//	printf("            before gen %d\n",reg_count);
-	if(nd->NODETYPE==RETURN){
-		callee_exit_gen(nd->ptr1);
-		return 0;
-	}
-	if(nd->NODETYPE==FUNC){
-		prev=reg_count;
-		printf("\nPUSH R7   //caller on entry--strt\n");	
-		printf("PUSH R6\n");	
-		printf("PUSH R5\n");	
-		printf("PUSH R4\n");	
-		printf("PUSH R3\n");	
-		printf("PUSH R2\n");	
-		printf("PUSH R1\n");	
-		printf("PUSH R0\n\n");	
-		free_reg();
-		push_args(nd->arglist);
-		printf("PUSH R0\n");//for return
-		printf("CALL %s\n",nd->NAME);
-		
-		pop_args(nd->arglist);
-		reg_count=prev;
-		printf("\nPOP R0\n");	
-		printf("POP R1\n");	
-		printf("POP R2\n");	
-		printf("POP R3\n");	
-		printf("POP R4\n");	
-		printf("POP R5\n");	
-		printf("POP R6\n");	
-		printf("POP R7\n\n");	
-		i=get_reg();
-		printf("MOV R%d, BP\n",i);
-		printf("DCR R%d\n", i);
-		printf("DCR R%d\n", i);		
-		printf("MOV R%d, [R%d]\n",i,i);
-		printf("MOV BP, [BP]  //caller on entry--stop\n\n");
-		return i;
-	}
-	if(nd->NODETYPE==REFR){		//only during function calls.. wen &id is found in grammar
-		int offset=code_gen(nd->ptr1->ptr1);
-		i=nd->ptr1->Gentry->LOC;
-		j=get_reg();
-		printf("MOV R%d, %d           //REFR strt\n",j,i);
-		printf("ADD R%d, R%d\n", offset, j);
-		k=get_reg();
-		if(nd->ptr1->Gentry->scope_flag=='g')
-			printf("MOV R%d, -1\n",k);
-		else
-			printf("MOV R%d, BP\n",k);
-		printf("ADD R%d, R%d         //REFR stop\n", offset, k);
-		dec_reg();
-		dec_reg();
-		return offset;
-	}
 	if(nd!=NULL){
+		if(nd->NODETYPE==RETURN){
+			callee_exit_gen(nd->ptr1);
+			return 0;
+		}
+		if(nd->NODETYPE==FUNC){
+			prev=reg_count;
+			printf("\nPUSH R7   //caller on entry--strt\n");	
+			printf("PUSH R6\n");	
+			printf("PUSH R5\n");	
+			printf("PUSH R4\n");	
+			printf("PUSH R3\n");	
+			printf("PUSH R2\n");	
+			printf("PUSH R1\n");	
+			printf("PUSH R0\n\n");	
+			free_reg();
+			push_args(nd->arglist);
+			printf("PUSH R0\n");//for return
+			printf("CALL %s\n",nd->NAME);
+		
+			pop_args(nd->arglist);
+			reg_count=prev;
+			printf("\nPOP R0\n");	
+			printf("POP R1\n");	
+			printf("POP R2\n");	
+			printf("POP R3\n");	
+			printf("POP R4\n");	
+			printf("POP R5\n");	
+			printf("POP R6\n");	
+			printf("POP R7\n\n");	
+			i=get_reg();
+			printf("MOV R%d, BP\n",i);
+			printf("DCR R%d\n", i);
+			printf("DCR R%d\n", i);		
+			printf("MOV R%d, [R%d]\n",i,i);
+			printf("MOV BP, [BP]  //caller on entry--stop\n\n");
+			return i;
+		}
+		if(nd->NODETYPE==REFR){		//only during function calls.. wen &id is found in grammar
+			int offset=code_gen(nd->ptr1->ptr1);
+			i=nd->ptr1->Gentry->LOC;
+			j=get_reg();
+			printf("MOV R%d, %d           //REFR strt\n",j,i);
+			printf("ADD R%d, R%d\n", offset, j);
+			k=get_reg();
+			if(nd->ptr1->Gentry->scope_flag=='g')
+				printf("MOV R%d, -1\n",k);
+			else
+				printf("MOV R%d, BP\n",k);
+			printf("ADD R%d, R%d         //REFR stop\n", offset, k);
+			dec_reg();
+			dec_reg();
+			return offset;
+		}
 		switch(nd->TYPE){
 			case(INT):
 				switch(nd->NODETYPE){

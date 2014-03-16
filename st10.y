@@ -59,6 +59,7 @@ indiv:	ID '[' E ']'				{$$=make_Gentry($1, var_par_type, eval($3), NULL);}
 		| ID '(' aux_fun_dlist ')'	{$$=make_Gentry($1, var_par_type, 0, $3);}
 		;
 aux_fun_dlist: fun_dlist			{$$=set_fun_head();}
+			|				{$$=set_fun_head();}
 			;
 fun_dlist:	fun_indiv DELIM fun_dlist		
 			| fun_indiv					
@@ -74,7 +75,7 @@ fun_idlist:	fid COMMA fun_idlist 			{;}
 fid:			ID							{$$=make_argentry($1, fun_par_type, 0);}
 			| AMPD ID					{$$=make_argentry($2, fun_par_type, 1);}
 			;
-slist:	stmt								{$$=mnode(VOID, STMT, 0, NULL, NULL, $1, NULL, NULL);}
+slist:										{$$=mnode(VOID, STMT, 0, NULL, NULL, NULL, NULL, NULL);}
 		|stmt slist							{$$=mnode(VOID, SLIST, 0, NULL, NULL, $1, $2, NULL);}
 		;
 stmt:	IDE ASGN E DELIM						{$$=mnode(VOID, ASGN, 0, NULL, NULL, $1, $3, NULL);}
