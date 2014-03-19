@@ -41,6 +41,18 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 		if(t!=NULL){
 			func_arg=t->arglist;
 			passed_arg=arglist;
+/*			
+			while(func_arg!=NULL){
+				printf("%d  %s\n", func_arg->TYPE, func_arg->NAME);
+				func_arg=func_arg->NEXT;
+			}
+			printf("sdfsdfsdsdds\n");
+			while(passed_arg!=NULL){
+				printf("%d  %s\n", passed_arg->TYPE, passed_arg->NAME);
+				passed_arg=passed_arg->next_arg;
+			}
+			exit(1);
+*/			
 			while((func_arg!=NULL) && (passed_arg!=NULL)){
 				if(func_arg->reference_flag==1){ 
 					if(passed_arg->NODETYPE==REFR){
@@ -69,34 +81,27 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 			exit(1);
 		}
 	}
-
-
-	/*  checks for valid tree formation */
-	if(TYPE==VOID)
-		if(ptr1==NULL)
-			return NULL;	
 	/* to check whether E in if statemnt has a bool return type */
-	if((NODETYPE==IF || NODETYPE==WHILE)&& ptr1->TYPE!=BOOL){
-		yyerror("boolean expected but integer found");
+	if((NODETYPE==IF || NODETYPE==WHILE || NODETYPE==NOT)&& ptr1->TYPE!=BOOL){
+		yyerror("boolean expected!\n");
 		exit(1);
 	}
-	/* to check whether both the operands are present */	
-	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ || NODETYPE==NEQ || NODETYPE==LE || NODETYPE==GE)
-		if(ptr1==NULL || ptr2==NULL){
-			yyerror("one of the operands are ill formed");
-			exit(1);
-		}	
 	/* type check for OPERATORS */
-	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ || NODETYPE==NEQ || NODETYPE==LE || NODETYPE==GE)
-		if(ptr1->TYPE != ptr2->TYPE){
-			printf("Type check failed %d    %d    %d\n",NODETYPE,ptr1->TYPE,ptr2->TYPE);
-			exit(1);
-		}	
-	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT ||   NODETYPE==LE || NODETYPE==GE)	
+	if(NODETYPE==GT || NODETYPE==LT || NODETYPE==EQ || NODETYPE==NEQ || NODETYPE==LE || NODETYPE==GE || NODETYPE==AND || NODETYPE==OR )
 		if(ptr1->TYPE!=INT || ptr2->TYPE!=INT){
-			yyerror("Integer expected!");
+			printf("integer expected for relop!\n");
 			exit(1);
 		}
+	if(NODETYPE==PLUS || NODETYPE==MINUS || NODETYPE==PDT || NODETYPE==DIV || NODETYPE==GT || NODETYPE==LT ||   NODETYPE==LE || NODETYPE==GE)	
+		if(ptr1->TYPE!=INT || ptr2->TYPE!=INT){
+			printf("Integer expected!\n");
+			exit(1);
+		}
+	/* checks if modulus operand is of type INT */		
+	if(NODETYPE==MOD && (ptr1->TYPE != INT) ){
+		printf("Integer expected with modulus\n");
+		exit(1);
+	}	
 		
 	/* checks if assignment operands are of same type */		
 	if(NODETYPE==ASGN && (ptr1->TYPE != ptr2->TYPE) ){
@@ -184,6 +189,25 @@ struct node * mnode(int TYPE, int NODETYPE, int VALUE, char* NAME, struct node *
 }
 
 struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct arglist * ARGLIST){
+	if(func_name!=NULL){
+		if(SIZE>1){
+			printf("arrays cant be declared locally\n");
+			exit(1);
+		}
+		if(ARGLIST!=NULL){
+			printf("functions cant be declared locally\n");
+			exit(1);
+		}
+		struct arglist * targ=Glookup(func_name)->arglist;
+		while(targ!=NULL){
+			if(!strcmp(NAME,targ->NAME)){
+				printf("local name is redeclared as an argument - %s\n",NAME);
+				exit(1);
+			}
+			targ=targ->NEXT;
+		}
+	}
+	check_if_exists(NAME, head);
 	struct Gsymbol * t;
 	t=(struct Gsymbol *)malloc(sizeof(struct Gsymbol));
 	t->BINDING=(int *)malloc(sizeof(int)*SIZE);
@@ -194,6 +218,7 @@ struct Gsymbol * make_Gentry(char * NAME,int TYPE,int SIZE,struct arglist * ARGL
 	t->NEXT=NULL;
 	t->LOC=location;
 	location+=SIZE;
+	t->fun_def_count=0;
 	t->arglist=ARGLIST;
 	if(head==NULL)
 		head=t;
@@ -226,24 +251,12 @@ struct Gsymbol * Glookup(char * name){
 
 
 void check_if_exists(char * NAME, struct Gsymbol * head){
-	if(head==NULL){
-		if(Glookup(NAME)!=NULL){
+	while(head!=NULL){
+		if(!strcmp(head->NAME,NAME)){
 			printf("variable redeclared - %s\n",NAME);
 			exit(1);
 		}
-	}
-	else{
-		if(Glookup(NAME)!=NULL){
-			printf("variable redeclared - %s\n",NAME);
-			exit(1);
-		}
-		while(head!=NULL){
-			if(!strcmp(head->NAME,NAME)){
-				printf("variable redeclared - %s\n",NAME);
-				exit(1);
-			}
-			head=head->NEXT;
-		}
+		head=head->NEXT;
 	}
 }
 
@@ -304,6 +317,11 @@ void fun_type_check(char *NAME, int RET_TYPE, struct arglist * args){
 	struct Gsymbol * func_pointer;
 	struct arglist * t;
 	func_pointer = Glookup(NAME);
+	if(func_pointer->fun_def_count!=0){
+		printf("multiple definitions found for the function - %s\n",NAME);
+		exit(1);
+	}
+	func_pointer->fun_def_count=1;
 	if(func_pointer==NULL){
 		printf("Function undeclared - %s\n", NAME);
 		exit(1);
@@ -375,4 +393,19 @@ struct node * set_rargs_head(){
 	rargs_head=NULL;
 	return x;
 		printf("chk\n");
+}
+void check_absent_fundef(){
+	struct Gsymbol * t;
+	t=global_head;
+	while(t!=NULL){
+		if(strcmp(t->NAME, "main")){
+			if(t->SIZE==0){
+				if(t->fun_def_count==0){
+					printf("Function not defined - %s\n", t->NAME);
+					exit(1);
+				}
+			}
+		}	
+		t=t->NEXT;
+	}
 }

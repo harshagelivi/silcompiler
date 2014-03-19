@@ -6,13 +6,12 @@ struct Gsymbol {
 	/***The TYPE field must be a TypeStruct if user defined types are allowed***/
 	int SIZE; // Size field for arrays
 	int * BINDING; // Address of the Identifier in Memory
-	int LOC;
+	int LOC,fun_def_count;
 	/***Argstruct must store the name and type of each argument ***/
 	struct arglist * arglist;
 	struct Gsymbol *NEXT; // Pointer to next Symbol Table Entry */
 	struct Gsymbol * local_decls;//---------------------------------------------------------------------------
-	char scope_flag;
-	
+	char scope_flag;	
 };
 
 struct node {
@@ -59,7 +58,7 @@ struct arglist * make_argentry(char * name,int type,int flag);
 struct arglist * fun_put_type(struct arglist * x, int type);
 struct arglist * fun_tail;
 int i;
-char * func_name;
+char * func_name=NULL;
 void fun_check_if_exists(char * NAME);
 struct arglist * fun_par_head=NULL;
 struct arglist * fun_par_tail;
@@ -79,3 +78,4 @@ void callee_entry_gen(char * func_name);
 void func_code_gen(char * func_name, struct node * func_body);
 int arg_location=1;
 void pop_args(struct node * a );
+void check_absent_fundef();

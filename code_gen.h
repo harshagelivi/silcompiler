@@ -146,20 +146,32 @@ int code_gen(struct node * nd){
 			return i;
 		}
 		if(nd->NODETYPE==REFR){		//only during function calls.. wen &id is found in grammar
-			int offset=code_gen(nd->ptr1->ptr1);
-			i=nd->ptr1->Gentry->LOC;
-			j=get_reg();
-			printf("MOV R%d, %d           //REFR strt\n",j,i);
-			printf("ADD R%d, R%d\n", offset, j);
-			k=get_reg();
-			if(nd->ptr1->Gentry->scope_flag=='g')
-				printf("MOV R%d, -1\n",k);
-			else
-				printf("MOV R%d, BP\n",k);
-			printf("ADD R%d, R%d         //REFR stop\n", offset, k);
-			dec_reg();
-			dec_reg();
-			return offset;
+			if(nd->ptr1->Argentry!=NULL && nd->ptr1->Argentry->reference_flag==1 ){
+				i=nd->ptr1->Argentry->LOC;
+				j=get_reg();
+				printf("MOV R%d, %d\n", j, i);
+				m=get_reg();
+				printf("MOV R%d, BP\n", m);
+				printf("ADD R%d, R%d\n", j, m);
+				dec_reg();
+				printf("MOV R%d, [R%d]\n", j, j);
+				return j;	
+			}else{
+				int offset=code_gen(nd->ptr1->ptr1);
+				i=nd->ptr1->Gentry->LOC;
+				j=get_reg();
+				printf("MOV R%d, %d           //REFR strt\n",j,i);
+				printf("ADD R%d, R%d\n", offset, j);
+				k=get_reg();
+				if(nd->ptr1->Gentry->scope_flag=='g')
+					printf("MOV R%d, -1\n",k);
+				else
+					printf("MOV R%d, BP\n",k);
+				printf("ADD R%d, R%d         //REFR stop\n", offset, k);
+				dec_reg();
+				dec_reg();
+				return offset;
+			}
 		}
 		switch(nd->TYPE){
 			case(INT):

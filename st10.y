@@ -27,7 +27,7 @@ gdeclarations: declarations				{insert_main_to_global();}
 		;
 mainbody: INT main '{' fdeclarations body '}'   {code_gen_aux($5);}
 		;
-main:	MAIN						{func_name="main";}
+main:	MAIN						{check_absent_fundef();func_name="main";}
 		;
 fdeflist:  								{;}
 		| fdeflist fdef_ind 				{;}
@@ -107,7 +107,7 @@ E: 		NUMB 			{$$=mnode(INT, INT, $1, NULL, NULL, NULL, NULL, NULL);}
 		| ID '('  ')'	 		{$$=mnode(VOID, FUNC, 0, $1, NULL , NULL, NULL, NULL);}
 		;
 farg_list:	arg_exp					{$$=$1;}		
-		| farg_list COMMA arg_exp	{$1->next_arg=$3;$$=$1;}		 				
+		| arg_exp COMMA farg_list	{$1->next_arg=$3;$$=$1;}		 				
 		;
 arg_exp:	E				{$$=$1;}
 		| AMPD IDE		{$$=mnode(VOID, REFR, 0, $2->NAME, NULL, $2, NULL, NULL);}

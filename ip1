@@ -1,46 +1,31 @@
 decl
-	integer a[10],n,sort(integer size),z;
+	integer func1(integer &x,a),qw[20];
 enddecl
 
-
-integer sort(integer size){
+integer func1(integer &x,a){
 	decl
-		integer i,j,k,t;
+		integer j,l,m;
 	enddecl
 	begin
-		i=0;
-		while(i<n) do
-			j=0;
-			while(j<(n-1)) do
-				if(a[j+1]>a[j]) then
-					t=a[j+1];
-					a[j+1]=a[j];
-					a[j]=t;
-				else
-					k=2;
-				endif;
-				j=j+1;
-			endwhile;
-			i=i+1;
-		endwhile;
+		x=x+1;
+		return x;
 	end
 }
 
 integer main(){
 	decl
-		integer i;
+		integer t,y,u,z;
+		boolean b1,b2;
 	enddecl
 	begin
-		read(n);
-		z=0;
-		while(z<n) do 
-			read(a[z]);
-			z=z+1;
+		qw[2]=456;
+		t=23;
+		write(qw[2]);
+		while(t>0)  do
+			z=func1(&qw[2],t);
+			t=t-1;
+			write(z);
 		endwhile;
-		i=0;
-		while(i<n) do 
-			write(a[i]);
-			i=i+1;
-		endwhile;
+		write(qw[2]);
 	end
 }
